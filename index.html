@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Sardhan Security Scanner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  background:#0d1117;
+  color:#e6edf3;
+  font-family:Arial;
+}
+.container {
+  max-width:800px;
+  margin:auto;
+  padding:20px;
+}
+input, button {
+  width:100%;
+  padding:14px;
+  margin-top:10px;
+  border-radius:8px;
+  border:none;
+}
+button {
+  background:#238636;
+  color:white;
+  cursor:pointer;
+}
+.card {
+  margin-top:10px;
+  padding:10px;
+  border-radius:6px;
+}
+.pass { background:#1f6f43; }
+.fail { background:#8b1d18; }
+.score {
+  font-size:22px;
+  text-align:center;
+  margin-top:20px;
+}
+.footer {
+  margin-top:30px;
+  font-size:12px;
+  color:#8b949e;
+  text-align:center;
+}
+</style>
+</head>
+<body>
+
+<div class="container">
+<h2>🔐 Sardhan Website Security Checker</h2>
+
+<input id="url" placeholder="https://example.com">
+<button onclick="scan()">Start Scan</button>
+
+<div id="out"></div>
+
+<div class="footer">
+Use only on websites you own or have permission to test<br>
+© Sardhan Security Tool
+</div>
+</div>
+
+<script>
+async function scan() {
+  const url = document.getElementById("url").value;
+  const out = document.getElementById("out");
+
+  out.innerHTML = "🔍 Scanning...";
+
+  try {
+    const res = await fetch("/scan", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      out.innerHTML = "❌ " + data.error;
+      return;
+    }
+
+    out.innerHTML = `<div class="score">Security Score: ${data.score}%</div>`;
+    data.results.forEach(r => {
+      out.innerHTML += `
+        <div class="card ${r.status}">
+          ${r.text}
+          ${r.fix ? "<br><small>Fix: " + r.fix + "</small>" : ""}
+        </div>`;
+    });
+
+  } catch {
+    out.innerHTML = "❌ Hosting blocked the scan request";
+  }
+}
+</script>
+
+</body>
+</html>
